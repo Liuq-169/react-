@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>购物车</title>
+    <script src="https://cdn.staticfile.org/react/16.4.0/umd/react.development.js"></script>
+    <script src="https://cdn.staticfile.org/react-dom/16.4.0/umd/react-dom.development.js"></script>
+    <script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script>
+    <script src="https://cdn.bootcss.com/prop-types/15.6.1/prop-types.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.css">
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        .goodsBox {
+            width: 800px;
+            border: 1px solid gainsboro;
+            overflow: hidden;
+        }
+
+        .goodsBox>p {
+            text-align: center;
+            line-height: 50px;
+            background-color: brown;
+            color: white;
+        }
+
+        .sortBox {
+            padding: 10px 10px;
+        }
+
+        .goodsHead {
+            height: 35px;
+            display: flex;
+            background-color: gainsboro;
+        }
+
+        .goodsHead>span {
+            flex: 1;
+            line-height: 35px;
+            text-align: center;
+            color: gray;
+        }
+
+        .goodsitem {
+            display: flex;
+        }
+
+        .itemDiv {
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            flex: 1;
+            border-bottom: 1px solid gainsboro;
+        }
+
+        .total {
+            line-height: 50px;
+            color: deepskyblue;
+            display: inline-block;
+            padding: 0 15px;
+        }
+
+        .emptyBox>button {
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+</body>
+<script type="text/babel">
+    class GoodsCar extends React.Component {
+        constructor() {
+            super();
+            this.state = {
+                goods: [
+                    {
+                        id: "xyy",
+                        name: "洗衣液",
+                        price: 50,
+                        count: 1,
+                        sum: 50
+                    }, {
+                        id: "jwmb",
+                        name: "绝味面包",
+                        price: 10,
+                        count: 1,
+                        sum: 10
+                    }, {
+                        id: "sqsj",
+                        name: "三全水饺",
+                        price: 12,
+                        count: 1,
+                        sum: 12
+                    }, {
+                        id: "jtssz",
+                        name: "家庭卫生纸",
+                        price: 25,
+                        count: 1,
+                        sum: 25
+                    }, {
+                        id: "sbjy",
+                        name: "厨邦酱油",
+                        price: 8,
+                        count: 1,
+                        sum: 8
+                    }, {
+                        id: "haier01",
+                        name: "海尔油烟机",
+                        price: 3000,
+                        count: 1,
+                        sum: 3000
+                    }, {
+                        id: "haier02",
+                        name: "海尔冰箱",
+                        price: 2500,
+                        count: 1,
+                        sum: 2500
+                    }
+                ],
+                total: 0,
+                totalNum: 7
+            }
+            // this.handelCount = this.handelCount.bind(this);
+        }
+        //组件加载成功
+        componentDidMount() {
+            console.log('组件加载完成');
+            var total = this.state.goods.reduce((total, item) => {
+                return total += item.sum
+            }, 0)
+            var totalNum = this.state.goods.reduce((totalNum,item)=>{
+                return totalNum += item.count
+            },0)
+            this.setState({//更新组件视图，在重新进行数据改变
+                total,
+                totalNum
+            })
+        }
+        //添加和减少商品数量
+        handleCount(type, item) {
+            this.state.total = 0
+            this.state.totalNum = 0
+            if (type == 'add') {
+                item.count += 1
+            } else if (type == 'sub') {
+                if (item.count > 0) {
+                    item.count -= 1
+                }
+            }
+            this.state.goods.forEach((item) => {
+                item.sum = item.price * item.count
+                this.state.total += item.sum
+                this.state.totalNum += item.count
+            })
+
+            this.setState({
+
+            })
+        }
+        //删除商品
+        handleDel(id, item) {
+            var newtotal = 0, newtotalNum = 0, newgoods = this.state.goods.filter((item, index) => {
+                return item.id != id
+            })
+            newgoods.forEach((item) => {
+                newtotal += item.sum
+                newtotalNum += item.count
+            })
+            this.setState({
+                goods: newgoods,
+                total: newtotal,
+                totalNum : newtotalNum
+            })
+        }
+        //一键清空
+        handleEmpty() {
+            this.setState({
+                goods: [],
+                total: 0,
+                totalNum: 0
+            })
+        }
+        //排序
+        handlePsort(type) {
+            this.state.goods.sort((a, b) => {
+                return a.price - b.price
+            })
+            
+            this.setState({
+
+            })
+        }
+        //按照商品数量排序
+        handleCsort() {
+            this.state.goods.sort((a, b) => {
+                return a.count - b.count
+            })
+            this.setState({
+
+            })
+        }
+        //按照商品金额排序
+        handleSsort() {
+            this.state.goods.sort((a, b) => {
+                return a.sum - b.sum
+            })
+            this.setState({
+
+            })
+        }
+
+
+        render() {
+            var lists = this.state.goods.map((item, index) => {
+                return <GoodsItem goods={item} key={item.id} oncount={(type) => { this.handleCount(type, item) }} ondel={(id) => { this.handleDel(id, item) }} />
+            })
+            return (
+                <div className='goodsBox'>
+                    <p>购物车</p>
+
+                    <div className='goodsHead'>
+                        <span>商品名称</span>
+                        <span>商品单价</span>
+                        <span>商品数量</span>
+                        <span>商品金额</span>
+                        <span>操作</span>
+                    </div>
+                    <ul>
+                        {lists}
+                    </ul>
+                    <span className='total'>总购物价：   {this.state.total}</span>
+                    <span className='total'>总购物数：   {this.state.totalNum}</span>
+                    <div className='sortBox'>
+
+                        <button onClick={() => { this.handlePsort() }}>按商品单价排序</button>
+                        <button onClick={() => { this.handleCsort() }}>按商品数量排序</button>
+                        <button onClick={() => { this.handleSsort() }}>按商品金额排序</button>
+
+
+                    </div>
+                    <div className='emptyBox'>
+
+                        <button onClick={() => { this.handleEmpty() }}>一键清空</button>
+
+                    </div>
+                </div>
+            )
+        }
+    }
+    class GoodsItem extends React.Component {
+        constructor() {
+            super();
+        }
+        handleDelete(id) {
+            this.props.ondel(id)
+        }
+        render() {
+            var { name, price, count, sum, id } = this.props.goods
+            return (
+                <li className='goodsitem'>
+                    <div className='itemDiv'>{name}</div>
+                    <div className='itemDiv'>{price}</div>
+                    <div className='itemDiv'>
+                        {<ItemCont count={count} oncount={(type) => { this.props.oncount(type) }} />}
+                    </div>
+                    <div className='itemDiv'>{sum}</div>
+                    <div className='itemDiv'>
+                        <button onClick={() => { this.handleDelete(id) }}>删除</button>
+                    </div>
+                </li>
+            )
+        }
+    }
+
+    class ItemCont extends React.Component {
+        constructor() {
+            super()
+            this.state = {
+            }
+        }
+        handleChange(type) {
+            this.props.oncount(type)
+        }
+        render() {
+            return (
+                <div style={{ width: 180 }}>
+                    <button onClick={() => { this.handleChange("sub") }}>-</button>
+                    {this.props.count}
+                    <button onClick={() => { this.handleChange("add") }}>+</button>
+                </div>
+            )
+        }
+    }
+    ReactDOM.render(
+        <div>
+            <GoodsCar />
+        </div>,
+        document.getElementById('app')
+    );
+</script>
+
+</html>
